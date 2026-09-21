@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Navbar } from "@/components/Navbar";
 import { DashboardOverview } from "@/components/DashboardOverview";
 import { TaskPredictor } from "@/components/TaskPredictor";
@@ -13,14 +13,30 @@ import { rebalanceTeamWorkload } from "@/lib/aiEngine";
 import { ArrowLeft, Home as HomeIcon } from "lucide-react";
 
 export default function Home() {
-  // Default to Dashboard Overview (accessed by clicking Logo Box)
   const [activeTab, setActiveTab] = useState("overview");
+  const [theme, setTheme] = useState<"dark" | "light">("dark");
   const [team, setTeam] = useState<TeamMember[]>(initialTeamMembers);
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [sprint, setSprint] = useState<Sprint>(initialSprint);
   const [rebalancedNotice, setRebalancedNotice] = useState<string | null>(null);
 
-  // Add task to sprint
+  // Synchronize HTML element class with theme state
+  useEffect(() => {
+    if (theme === "dark") {
+      document.documentElement.classList.add("dark");
+      document.documentElement.classList.remove("light");
+    } else {
+      document.documentElement.classList.remove("dark");
+      document.documentElement.classList.add("light");
+    }
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
+  };
+
+  const isLight = theme === "light";
+
   const handleAddTask = (newTask: Task) => {
     setTasks((prev) => [newTask, ...prev]);
 
@@ -51,7 +67,6 @@ export default function Home() {
     }
   };
 
-  // Workload rebalancer using FastAPI
   const handleRebalance = async () => {
     try {
       const res = await fetch("http://127.0.0.1:8000/api/rebalance", {
@@ -91,7 +106,6 @@ export default function Home() {
     }, 6000);
   };
 
-  // Live Sprint Updated handler (called by SprintPlanner with FastAPI result)
   const handleSprintUpdated = (
     updatedSprint: Sprint,
     updatedTasks: Task[],
@@ -106,9 +120,20 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-[#070b14] text-slate-100 flex flex-col">
-      {/* Top Navbar with Logo Box (opens Dashboard) and 4 direct tool tabs */}
-      <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
+    <div
+      className={`min-h-screen flex flex-col transition-colors duration-300 ${
+        isLight
+          ? "bg-[#faf8ff] text-slate-900 selection:bg-purple-200 selection:text-purple-900"
+          : "bg-[#080414] text-slate-100 selection:bg-purple-600/30 selection:text-purple-200"
+      }`}
+    >
+      {/* Top Navbar with Logo Box and Theme Switcher */}
+      <Navbar
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        theme={theme}
+        toggleTheme={toggleTheme}
+      />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-8">
         {/* Navigation Breadcrumb when inside any specific tool */}
@@ -116,17 +141,25 @@ export default function Home() {
           <div className="mb-6 flex items-center justify-between">
             <button
               onClick={() => setActiveTab("overview")}
-              className="inline-flex items-center gap-2 text-xs font-semibold text-slate-400 hover:text-cyan-400 transition-colors bg-slate-900/80 hover:bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-800 cursor-pointer"
+              className={`inline-flex items-center gap-2 text-xs font-semibold px-3.5 py-1.5 rounded-xl border transition-colors cursor-pointer shadow-xs ${
+                isLight
+                  ? "text-purple-900 bg-white hover:bg-purple-50 border-purple-200 shadow-purple-500/5"
+                  : "text-purple-300 bg-[#110829] hover:bg-[#190c3d] border-purple-900/60"
+              }`}
             >
               <ArrowLeft className="h-3.5 w-3.5" />
               <span>Back to Dashboard</span>
             </button>
 
-            <div className="flex items-center gap-1.5 text-xs text-slate-500 font-mono">
+            <div className={`flex items-center gap-1.5 text-xs font-mono ${
+              isLight ? "text-purple-800" : "text-purple-400/80"
+            }`}>
               <HomeIcon className="h-3 w-3" />
               <span>Dashboard</span>
               <span>/</span>
-              <span className="text-cyan-400 font-semibold uppercase">
+              <span className={`font-semibold uppercase ${
+                isLight ? "text-purple-700" : "text-fuchsia-400"
+              }`}>
                 {activeTab === "predict"
                   ? "AI Duration Predictor"
                   : activeTab === "sprint"
@@ -139,7 +172,7 @@ export default function Home() {
           </div>
         )}
 
-        {/* 1. Dashboard Overview (Activated by clicking the Logo Box) */}
+        {/* 1. Dashboard Overview */}
         {activeTab === "overview" && (
           <DashboardOverview
             tasks={tasks}
@@ -188,7 +221,11 @@ export default function Home() {
         )}
       </main>
 
-      <footer className="border-t border-slate-800/80 bg-[#070b14] py-6 px-6 text-center text-xs text-slate-500">
+      <footer className={`border-t py-6 px-6 text-center text-xs transition-colors ${
+        isLight
+          ? "border-purple-200 bg-white text-purple-800/80"
+          : "border-purple-950/80 bg-[#080414] text-purple-400/70"
+      }`}>
         <p>Nexus AI Task Management Ecosystem • Powered by Next.js 14, FastAPI, GPT-4 &amp; Pinecone</p>
       </footer>
     </div>

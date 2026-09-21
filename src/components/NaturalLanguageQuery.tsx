@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { MessageSquare, Send, Sparkles, Database, ArrowRight, Bot, User, Activity } from "lucide-react";
+import { MessageSquare, Send, Sparkles, ArrowRight, Bot, User, Activity } from "lucide-react";
 import { Task, TeamMember, CopilotMessage } from "@/types/nexus";
 import { processNaturalLanguageQuery } from "@/lib/aiEngine";
 
@@ -43,7 +43,6 @@ export const NaturalLanguageQuery: React.FC<NaturalLanguageQueryProps> = ({ task
     setIsSearching(true);
 
     try {
-      // Call live FastAPI /api/query endpoint
       const res = await fetch("http://127.0.0.1:8000/api/query", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -69,7 +68,7 @@ export const NaturalLanguageQuery: React.FC<NaturalLanguageQueryProps> = ({ task
         return;
       }
     } catch {
-      // Fallback to local RAG engine if FastAPI connection drops
+      // Fallback
     }
 
     const localResponse = processNaturalLanguageQuery(q, tasks, team);
@@ -86,20 +85,20 @@ export const NaturalLanguageQuery: React.FC<NaturalLanguageQueryProps> = ({ task
   };
 
   return (
-    <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-6 shadow-xl flex flex-col h-[640px]">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-4 mb-4">
+    <div className="rounded-2xl border border-purple-200/80 dark:border-purple-900/70 bg-white dark:bg-[#0e0724]/85 p-6 shadow-xl shadow-purple-500/5 dark:shadow-2xl flex flex-col h-[640px] transition-colors">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-purple-100 dark:border-purple-950 pb-4 mb-4">
         <div>
           <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-cyan-500/10 text-cyan-400 flex items-center justify-center border border-cyan-500/20">
+            <div className="h-8 w-8 rounded-lg bg-fuchsia-100 dark:bg-fuchsia-500/15 text-fuchsia-700 dark:text-fuchsia-400 flex items-center justify-center border border-fuchsia-200 dark:border-fuchsia-500/30">
               <MessageSquare className="h-4 w-4" />
             </div>
-            <h2 className="text-lg font-bold text-white">Natural Language Project Querying</h2>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white">Natural Language Project Querying</h2>
           </div>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
             Live FastAPI RAG pipeline querying Pinecone embeddings &amp; GPT-4 context graph.
           </p>
         </div>
-        <div className="flex items-center gap-2 text-xs text-emerald-400 font-mono">
+        <div className="flex items-center gap-2 text-xs text-emerald-700 dark:text-emerald-400 font-mono">
           <Activity className="h-3.5 w-3.5 animate-pulse" />
           <span>FastAPI RAG Live</span>
         </div>
@@ -111,7 +110,7 @@ export const NaturalLanguageQuery: React.FC<NaturalLanguageQueryProps> = ({ task
           <button
             key={idx}
             onClick={() => handleSend(sample)}
-            className="text-left text-[11px] px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-800 text-slate-400 hover:text-cyan-300 hover:border-cyan-500/40 transition-all flex items-center gap-1.5"
+            className="text-left text-[11px] px-3 py-1.5 rounded-lg bg-purple-50/60 dark:bg-[#09041a] border border-purple-200 dark:border-purple-950 text-purple-900/80 dark:text-purple-300/80 hover:text-purple-950 dark:hover:text-fuchsia-300 hover:border-purple-400 dark:hover:border-fuchsia-500/40 transition-all flex items-center gap-1.5 cursor-pointer"
           >
             <span>{sample}</span>
             <ArrowRight className="h-2.5 w-2.5 opacity-60" />
@@ -131,8 +130,8 @@ export const NaturalLanguageQuery: React.FC<NaturalLanguageQueryProps> = ({ task
             <div
               className={`h-7 w-7 rounded-lg flex items-center justify-center shrink-0 text-xs font-bold ${
                 msg.sender === "user"
-                  ? "bg-cyan-600 text-white"
-                  : "bg-gradient-to-br from-indigo-500 to-cyan-500 text-white shadow-sm"
+                  ? "bg-fuchsia-600 text-white"
+                  : "bg-gradient-to-br from-violet-600 via-purple-600 to-fuchsia-600 text-white shadow-md shadow-purple-600/30"
               }`}
             >
               {msg.sender === "user" ? <User className="h-3.5 w-3.5" /> : <Bot className="h-3.5 w-3.5" />}
@@ -141,20 +140,20 @@ export const NaturalLanguageQuery: React.FC<NaturalLanguageQueryProps> = ({ task
             <div
               className={`max-w-[85%] rounded-2xl p-4 text-xs leading-relaxed ${
                 msg.sender === "user"
-                  ? "bg-cyan-950/40 border border-cyan-500/30 text-cyan-100"
-                  : "bg-slate-950/80 border border-slate-800 text-slate-200"
+                  ? "bg-purple-100 text-purple-950 border border-purple-300 dark:bg-purple-950/60 dark:border-violet-500/40 dark:text-purple-100"
+                  : "bg-purple-50/70 border border-purple-200 text-slate-800 dark:bg-[#09041a]/90 dark:border-purple-950 dark:text-slate-200"
               }`}
             >
               <p>{msg.text}</p>
 
               {/* Cited Tasks */}
               {msg.citedTasks && msg.citedTasks.length > 0 && (
-                <div className="mt-3 pt-2.5 border-t border-slate-800/80 flex flex-wrap items-center gap-1.5">
-                  <span className="text-[10px] uppercase font-semibold text-slate-400">Cited Records:</span>
+                <div className="mt-3 pt-2.5 border-t border-purple-200 dark:border-purple-950 flex flex-wrap items-center gap-1.5">
+                  <span className="text-[10px] uppercase font-semibold text-purple-800 dark:text-purple-300">Cited Records:</span>
                   {msg.citedTasks.map((taskId) => (
                     <span
                       key={taskId}
-                      className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20"
+                      className="text-[10px] font-mono px-2 py-0.5 rounded bg-purple-100 text-purple-800 border border-purple-300 dark:bg-fuchsia-500/15 dark:text-fuchsia-300 dark:border-fuchsia-500/30 font-semibold"
                     >
                       {taskId}
                     </span>
@@ -164,8 +163,8 @@ export const NaturalLanguageQuery: React.FC<NaturalLanguageQueryProps> = ({ task
 
               {/* Action Recommendation */}
               {msg.actionRecommendation && (
-                <div className="mt-2.5 rounded-lg bg-indigo-950/30 border border-indigo-500/30 p-2 text-[11px] text-indigo-300 flex items-center gap-1.5">
-                  <Sparkles className="h-3.5 w-3.5 text-indigo-400 shrink-0" />
+                <div className="mt-2.5 rounded-lg bg-fuchsia-50 border border-fuchsia-200 text-fuchsia-900 dark:bg-purple-950/70 dark:border-fuchsia-500/30 dark:text-fuchsia-200 p-2 text-[11px] flex items-center gap-1.5">
+                  <Sparkles className="h-3.5 w-3.5 text-fuchsia-600 dark:text-fuchsia-400 shrink-0" />
                   <span>AI Action: {msg.actionRecommendation}</span>
                 </div>
               )}
@@ -175,11 +174,11 @@ export const NaturalLanguageQuery: React.FC<NaturalLanguageQueryProps> = ({ task
 
         {isSearching && (
           <div className="flex items-center gap-3">
-            <div className="h-7 w-7 rounded-lg bg-indigo-600 text-white flex items-center justify-center shrink-0 text-xs">
+            <div className="h-7 w-7 rounded-lg bg-purple-600 text-white flex items-center justify-center shrink-0 text-xs shadow-md shadow-purple-600/30">
               <Bot className="h-3.5 w-3.5" />
             </div>
-            <div className="rounded-2xl p-3.5 bg-slate-950/80 border border-slate-800 text-xs text-slate-400 flex items-center gap-2">
-              <span className="animate-spin text-cyan-400">✦</span>
+            <div className="rounded-2xl p-3.5 bg-purple-50 dark:bg-[#09041a]/90 border border-purple-200 dark:border-purple-950 text-xs text-purple-900 dark:text-purple-300 flex items-center gap-2">
+              <span className="animate-spin text-fuchsia-600 dark:text-fuchsia-400">✦</span>
               <span>Calling FastAPI RAG pipeline (Pinecone &amp; GPT-4)...</span>
             </div>
           </div>
@@ -199,12 +198,12 @@ export const NaturalLanguageQuery: React.FC<NaturalLanguageQueryProps> = ({ task
             }
           }}
           placeholder="Ask anything about the project, team load, velocity, or tasks..."
-          className="w-full pl-4 pr-12 py-3 rounded-xl bg-slate-950 border border-slate-800 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition-colors"
+          className="w-full pl-4 pr-12 py-3 rounded-xl bg-purple-50/40 dark:bg-[#09041a] border border-purple-200 dark:border-purple-900/60 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-purple-600 transition-colors"
         />
         <button
           onClick={() => handleSend()}
           disabled={!inputQuery.trim() || isSearching}
-          className="absolute right-2 top-2 h-8 w-8 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-white flex items-center justify-center disabled:opacity-40 transition-opacity"
+          className="absolute right-2 top-2 h-8 w-8 rounded-lg bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white flex items-center justify-center disabled:opacity-40 transition-opacity cursor-pointer shadow-md shadow-purple-600/30"
         >
           <Send className="h-3.5 w-3.5" />
         </button>
